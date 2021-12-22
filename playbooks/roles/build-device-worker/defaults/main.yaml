@@ -1,0 +1,4 @@
+---
+base_repo_dir: /tmp/build
+rpm_build_directory: ~/rpmbuild
+build_arch: x86_64

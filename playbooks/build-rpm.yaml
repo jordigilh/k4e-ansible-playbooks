@@ -1,0 +1,6 @@
+- name: Build Yggrasil RPM
+  hosts: localhost
+  gather_facts: no
+  roles: 
+    - role: build-yggdrasil-rpm
+    - role: build-device-worker

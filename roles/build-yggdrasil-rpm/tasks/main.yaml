@@ -1,0 +1,61 @@
+
+- name: Install Packages
+  ansible.builtin.dnf:
+    state: latest
+    name:
+      - dbus-devel
+      - systemd-devel
+      - git
+      - golang
+      - rpm-build
+
+- name: Delete build directory
+  ansible.builtin.file:
+    path: "{{ base_repo_dir }}"
+    state: absent
+
+- name: Clone Yggdrasil repository
+  ansible.builtin.git:
+    repo: "https://github.com/jakub-dzon/yggdrasil.git"
+    dest: "{{ base_repo_dir }}/yggdrasil"
+
+- name: Delete rpm build directory
+  ansible.builtin.file: 
+    path: "{{ rpm_build_directory }}/*"
+    state: absent
+
+- name: Build Yggdrasil
+  community.general.make:
+    chdir: "{{ base_repo_dir }}/yggdrasil"
+    target: srpm
+    file: .copr/Makefile
+    params:
+      CGO_ENABLED: 0
+      ARCH: "{{ build_arch }}"
+      GOPROXY: "proxy.golang.org"
+      PWD: "{{ base_repo_dir }}/yggdrasil"
+      spec: "{{ base_repo_dir }}/yggdrasil"
+      outdir: "{{ base_repo_dir }}/yggdrasil"
+
+- name: Check SRPM package 
+  ansible.builtin.find:
+    paths: "{{ base_repo_dir }}/yggdrasil"
+    patterns: '^yggdrasil-.*\.src\.rpm$'
+    use_regex: yes
+  register: package_version
+  failed_when: package_version.matched != 1
+
+- name: Install SRPM package
+  ansible.builtin.command: "rpm -ihv {{ package_version.files[0].path }}"
+  register: ret
+  failed_when: ret.rc !=0
+
+- name: Turn ELF binary stripping off in spec
+  ansible.builtin.lineinfile:
+    path: "{{ rpm_build_directory }}/SPECS/yggdrasil.spec"
+    insertafter: '^'
+    line: '%global __os_install_post %{nil}'
+  when: "build_arch  == 'aarch64'"
+
+- name: Run RPMBuild for Yggdrasil
+  ansible.builtin.command: rpmbuild -bb {{ rpm_build_directory }}/SPECS/yggdrasil.spec --target {{ build_arch }}
