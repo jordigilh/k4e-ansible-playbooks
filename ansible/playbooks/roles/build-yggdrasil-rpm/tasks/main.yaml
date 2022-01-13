@@ -1,19 +1,19 @@
 - name: Build Yggdrasil
   community.general.make:
-    chdir: "{{ base_repo_dir }}/yggdrasil"
+    chdir: "{{ base_repo_dir }}/source"
     target: srpm
     file: .copr/Makefile
     params:
       CGO_ENABLED: 0
       ARCH: "{{ build_arch }}"
       GOPROXY: "proxy.golang.org"
-      PWD: "{{ base_repo_dir }}/yggdrasil"
-      spec: "{{ base_repo_dir }}/yggdrasil"
-      outdir: "{{ base_repo_dir }}/yggdrasil"
+      PWD: "{{ base_repo_dir }}/source"
+      spec: "{{ base_repo_dir }}/source"
+      outdir: "{{ base_repo_dir }}/source"
 
 - name: Check SRPM package 
   ansible.builtin.find:
-    paths: "{{ base_repo_dir }}/yggdrasil"
+    paths: "{{ base_repo_dir }}/source"
     patterns: '^yggdrasil-.*\.src\.rpm$'
     use_regex: yes
   register: package_version
