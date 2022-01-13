@@ -1,0 +1,5 @@
+- name: Build RPMs
+  hosts: localhost
+  become: yes
+  roles: 
+    - role: build-yggdrasil-rpm

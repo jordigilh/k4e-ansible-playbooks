@@ -1,0 +1,14 @@
+targetNamespace: rfe
+
+source:
+  yggdrasil:
+    branch: main
+    repoURL: https://github.com/jakub-dzon/yggdrasil.git
+
+  worker:
+    branch: main
+    repoURL: https://github.com/jakub-dzon/k4e-device-worker.git
+
+  tools:
+    branch: helm
+    repoURL: https://github.com/jordigilh/k4e-ansible-playbooks.git

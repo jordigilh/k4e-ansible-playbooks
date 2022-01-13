@@ -31,3 +31,11 @@
     chdir: "{{ base_repo_dir }}/worker"
     target: rpm
   when: "build_arch == 'x86_64'"
+
+- name: Capture RPM filename
+  ansible.builtin.find:
+    paths: "{{ rpm_build_directory }}/{{ build_arch }}"
+    patterns: '^k4e-agent-.*\.rpm$'
+    use_regex: yes
+  register: agent_rpm
+  failed_when: agent_rpm.matched != 1

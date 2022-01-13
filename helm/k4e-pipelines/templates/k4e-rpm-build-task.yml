@@ -1,0 +1,51 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  namespace: {{ .Values.targetNamespace }}  
+  name: k4e-build-task
+spec:
+  workspaces:
+    - name: workspace
+  params:
+    - name: source-dir
+      description: Directory Contaning source File
+      type: string    
+  results:
+    - name: build-commit
+      description: Commit ID of the Build
+  steps:
+    - name: build-image-playbook
+      image: image-registry.openshift-image-registry.svc:5000/rfe/ansible-rfe-runner:latest
+      workingDir: /workspace/workspace
+      args:
+        - |-
+          cd tools/
+          ansible-galaxy collection install -r collections/requirements.yaml
+          ansible-playbook \
+            -e source_dir=$(params.source-dir) \
+            -e build_arch=`uname -i` \
+            -e build_commit_output_file=$(results.build-commit.path) \
+            playbooks/build-rpm.yaml
+      command:
+        - /bin/bash
+        - -c
+      volumeMounts:
+        - name: publisher
+          mountPath: /var/secrets/publisher
+          readOnly: true
+        - name: quay-rfe-setup
+          mountPath: /var/secrets/quay-rfe-setup
+          readOnly: true
+  volumes:
+    - name: publisher
+      secret:
+        defaultMode: 0440
+        secretName: publisher
+    - name: quay-rfe-setup
+      secret:
+        defaultMode: 0440
+        secretName: quay-rfe-setup
+    - name: image-builder-ssh
+      secret:
+        defaultMode: 0440
+        secretName: "$(params.image-builder-secret)"
