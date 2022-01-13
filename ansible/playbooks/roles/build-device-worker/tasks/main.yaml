@@ -1,13 +1,3 @@
-- name: Delete build directory
-  ansible.builtin.file:
-    path: "{{ base_repo_dir }}/worker"
-    state: absent
-
-- name: Clone Device Worker repository
-  ansible.builtin.git:
-    repo: "https://github.com/jakub-dzon/k4e-device-worker.git"
-    dest: "{{ base_repo_dir }}/worker"
-
 - name: Build binary for aarch64
   community.general.make:
     chdir: "{{ base_repo_dir }}/worker"

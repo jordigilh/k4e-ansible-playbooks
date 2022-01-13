@@ -1,5 +1,9 @@
 targetNamespace: rfe
 
+buildConfig:
+  name: ansible-k4e-runner
+
+
 source:
   yggdrasil:
     branch: main

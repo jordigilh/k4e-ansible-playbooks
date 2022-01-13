@@ -38,7 +38,7 @@
 
 - name: Capture RPM filename
   ansible.builtin.find:
-    paths: "{{ rpm_build_directory }}/{{ build_arch }}"
+    paths: "{{ rpm_build_directory }}/RPMS/{{ build_arch }}"
     patterns: '^yggdrasil-.*\.rpm$'
     use_regex: yes
   register: yggdrasil_rpm
