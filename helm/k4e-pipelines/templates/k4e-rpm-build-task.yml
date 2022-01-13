@@ -19,7 +19,7 @@ spec:
       workingDir: /workspace/workspace
       args:
         - |-
-          cd tools/
+          cd tools/ansible
           ansible-galaxy collection install -r collections/requirements.yaml
           ansible-playbook \
             -e source_dir=$(params.source-dir) \
