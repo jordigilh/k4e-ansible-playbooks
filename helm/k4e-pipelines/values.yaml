@@ -4,10 +4,12 @@ source:
   yggdrasil:
     branch: main
     repoURL: https://github.com/jakub-dzon/yggdrasil.git
+    dirname: yggdrasil
 
   worker:
     branch: main
     repoURL: https://github.com/jakub-dzon/k4e-device-worker.git
+    dirname: worker
 
   tools:
     branch: helm
