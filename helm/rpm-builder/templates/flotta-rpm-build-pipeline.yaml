@@ -1,0 +1,91 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  namespace: {{ .Values.targetNamespace }} 
+  name: flotta-rpm-build-pipeline
+spec:
+  params:
+    - name: worker-git-url
+      description: Worker Source Repository URL
+      default: {{ $.Values.source.worker.repoURL }}
+      type: string
+    - name: worker-git-branch
+      description: Worker Source Repository Branch Reference
+      default: {{ $.Values.source.worker.branch }}
+      type: string
+    - name: yggdrasil-git-url
+      description: Yggdrasil Source Repository URL
+      default: {{ $.Values.source.yggdrasil.repoURL }}
+      type: string
+    - name: yggdrasil-git-branch
+      description: Yggdrasil Source Repository Branch Reference
+      default: {{ $.Values.source.yggdrasil.branch }}
+      type: string 
+    - name: tools-git-url
+      description: Flotta Build Repository URL
+      default: {{ $.Values.source.tools.repoURL }}
+      type: string
+    - name: tools-git-branch
+      description: Flotta Build Repository Branch Reference
+      default: {{ $.Values.source.tools.branch }}
+      type: string
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: git-clone-yggdrasil-source
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.yggdrasil-git-url)
+        - name: revision
+          value: $(params.yggdrasil-git-branch)
+        - name: subdirectory
+          value: yggdrasil
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+    - name: git-clone-worker-source
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.worker-git-url)
+        - name: revision
+          value: $(params.worker-git-branch)
+        - name: subdirectory
+          value: worker
+      workspaces:
+        - name: output
+          workspace: shared-workspace          
+    - name: git-clone-tools
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.tools-git-url)
+        - name: revision
+          value: $(params.tools-git-branch)
+        - name: subdirectory
+          value: tools
+      workspaces:
+        - name: output
+          workspace: shared-workspace             
+    - name: flotta-rpm-build-task
+      taskRef:
+        name: flotta-build-task
+        kind: Task
+      params:
+        - name: base-repo-dir
+          value: /workspace/workspace/    
+      runAfter:
+        - "git-clone-yggdrasil-source"
+        - "git-clone-worker-source"
+        - "git-clone-tools"
+      workspaces:
+        - name: workspace
+          workspace: shared-workspace
+

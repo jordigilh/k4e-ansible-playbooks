@@ -1,0 +1,13 @@
+- name: Build binaries for x86_64 and aarch64
+  community.general.make:
+    chdir: "{{ base_repo_dir }}/worker"
+    target: dist
+
+- name: Assert RPMs created
+  ansible.builtin.find:
+    paths: "{{ rpm_build_directory }}/RPMS/"
+    patterns: '^k4e-agent-.*\.rpm$'
+    use_regex: yes
+    recurse: yes
+  register: agent_rpm
+  failed_when: agent_rpm.matched != 2

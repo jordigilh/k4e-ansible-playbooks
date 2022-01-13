@@ -1,0 +1,28 @@
+targetNamespace: rfe
+
+buildConfig:
+  name: rpm-builder
+  image:
+    name: quay.io/centos/centos
+    tag: stream8
+  output:
+    imageName: rpm-builder
+    tag: latest
+
+buildTask:
+  image:
+    name: image-registry.openshift-image-registry.svc:5000/rfe/rpm-builder
+    tag: latest
+
+source:
+  yggdrasil:
+    branch: main
+    repoURL: https://github.com/jakub-dzon/yggdrasil.git
+
+  worker:
+    branch: main
+    repoURL: https://github.com/jakub-dzon/k4e-device-worker.git
+
+  tools:
+    branch: helm
+    repoURL: https://github.com/project-flotta/rfe-ansible-playbooks.git

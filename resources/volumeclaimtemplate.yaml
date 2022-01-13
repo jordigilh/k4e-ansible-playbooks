@@ -1,0 +1,8 @@
+metadata:
+  name: flotta-tekton-workspace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
