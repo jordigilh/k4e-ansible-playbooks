@@ -12,8 +12,30 @@
       - file_to_upload is defined
       - file_exists.stat.exists
 
+
+
 - name: Upload file to Nexus
   block:
+    - name: Get Nexus Credentials
+      community.kubernetes.k8s_info:
+        api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+        ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        host: https://kubernetes.default.svc
+        kind: Secret
+        namespace: rfe
+        name: "{{ nexus_credentials_secret_name }}"
+        validate_certs: yes
+      become: no
+      delegate_to: localhost
+      failed_when: nexus_secret.resources | length != 1
+      register: nexus_secret
+
+    - name: Set Nexus Credentials
+      ansible.builtin.set_fact:
+        nexus_password: "{{ nexus_secret.resources[0].data.password | b64decode }}"
+        nexus_username: "{{ nexus_secret.resources[0].data.username | b64decode }}"
+      no_log: true
+
     - name: Verify Nexus Variables defined
       assert:
         fail_msg: "Nexus required variables are defined"

@@ -2,6 +2,7 @@
   hosts: localhost
   vars:
     rpm_build_directory: ~/rpmbuild
+    nexus_k4e_repository: k4e-repo
   roles: 
      - role: build-yggdrasil-rpm
      - role: build-device-worker
@@ -16,11 +17,17 @@
         recurse: yes
       register: rpm_files
       failed_when: rpm_files.matched != 3
+
+    - name: Register loop output as a variable
+      ansible.builtin.shell: "echo {{ item }}"
+      loop: "{{ rpm_files.files }}"
+      register: echo
+
     - name: Upload RPM artifacts to Nexus
       include_role:
         name: content-download-upload
         tasks_from: upload-rfe-artifact.yaml
       vars:
-        file_to_upload: "{{ item.filename }}"
+        file_to_upload: "{{ item.path }}"
         nexus_repository: "{{ nexus_k4e_repository }}"
-      loop: "{{ yggdrasil_rpm.files | agent_rpm.files }}"    
+      loop: "{{ rpm_files.files }}"    
