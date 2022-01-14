@@ -41,5 +41,5 @@
     paths: "{{ rpm_build_directory }}/{{ build_arch }}"
     patterns: '^yggdrasil-.*\.rpm$'
     use_regex: yes
-  register: yggdrasil_rpm
-  failed_when: yggdrasil_rpm.matched != 1
+  register: yggdrasil_filename
+  failed_when: yggdrasil_filename.matched != 1

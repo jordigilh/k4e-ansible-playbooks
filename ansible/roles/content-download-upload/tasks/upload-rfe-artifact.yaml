@@ -1,0 +1,59 @@
+---
+- name: Check if file to upload exists
+  stat:
+    path: "{{ file_to_upload }}"
+  register: file_exists
+  when: file_to_upload is defined
+
+- name: Assert file exists
+  assert:
+    fail_msg: "File is not defined or does not exist"
+    that:
+      - file_to_upload is defined
+      - file_exists.stat.exists
+
+- name: Upload file to Nexus
+  block:
+    - name: Verify Nexus Variables defined
+      assert:
+        fail_msg: "Nexus required variables are defined"
+        that:
+          - nexus_repository is defined
+          - nexus_username is defined
+          - nexus_password is defined
+
+    - name: Set destination path
+      set_fact:
+        nexus_destination_path: "repository/{{ nexus_repository }}/{{ nexus_repository_folder + '/' if nexus_repository_folder is defined }}{{ uploaded_filename_override | default(file_to_upload | basename) }}"
+
+    - name: Upload file to Nexus
+      uri:
+        url: "{{ nexus_http_scheme }}://{{ nexus_service_name }}:{{ nexus_service_port }}/{{ nexus_destination_path }}"
+        method: PUT
+        src: "{{ file_to_upload }}"
+        user: "{{ nexus_username }}"
+        password: "{{ nexus_password }}"
+        headers:
+          Content-Type: application/octet-stream
+        force_basic_auth: yes
+        validate_certs: no
+        status_code:
+          - 201
+
+    - name: Get Nexus Route
+      community.kubernetes.k8s_info:
+        api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
+        ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        host: https://kubernetes.default.svc
+        kind: Route
+        api_version: route.openshift.io/v1
+        namespace: rfe
+        name: nexus
+        validate_certs: yes
+      register: nexus_route
+
+    - name: Save Nexus Destination to File
+      copy:
+        dest: "{{ artifact_repository_url_output_file }}"
+        content: "{{ ('https://' if nexus_route.resources[0].spec.tls is defined else 'http://') + nexus_route.resources[0].spec.host }}/{{ nexus_destination_path }}"
+  when: skip_nexus_upload is not defined or (not skip_nexus_upload|bool)
