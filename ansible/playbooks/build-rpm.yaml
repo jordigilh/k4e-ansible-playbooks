@@ -23,4 +23,4 @@
       vars:
         file_to_upload: "{{ item.filename }}"
         nexus_repository: "{{ nexus_k4e_repository }}"
-      loop: {{ yggdrasil_rpm.files | agent_rpm.files }}    
+      loop: "{{ yggdrasil_rpm.files | agent_rpm.files }}"    
