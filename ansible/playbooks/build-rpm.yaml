@@ -3,8 +3,8 @@
   vars:
     rpm_build_directory: ~/rpmbuild
   roles: 
-#    - role: build-yggdrasil-rpm
-#    - role: build-device-worker
+     - role: build-yggdrasil-rpm
+     - role: build-device-worker
   tasks:
     - name: Capture RPM filename
       ansible.builtin.find:

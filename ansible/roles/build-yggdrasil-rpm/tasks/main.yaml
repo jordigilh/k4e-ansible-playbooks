@@ -36,10 +36,10 @@
   register: ret
   failed_when: ret.rc !=0  
 
-- name: Capture RPM filename
+- name: Assert RPM created
   ansible.builtin.find:
-    paths: "{{ rpm_build_directory }}/{{ build_arch }}"
+    paths: "{{ rpm_build_directory }}/RPMS/{{ build_arch }}"
     patterns: '^yggdrasil-.*\.rpm$'
     use_regex: yes
-  register: yggdrasil_filename
-  failed_when: yggdrasil_filename.matched != 1
+  register: yggdrasil_rpm
+  failed_when: yggdrasil_rpm.matched != 1

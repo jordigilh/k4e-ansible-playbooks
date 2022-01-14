@@ -34,7 +34,7 @@
 
 - name: Capture RPM filename
   ansible.builtin.find:
-    paths: "{{ rpm_build_directory }}/"
+    paths: "{{ rpm_build_directory }}/RPMS/"
     patterns: '^k4e-agent-.*\.rpm$'
     use_regex: yes
     recurse: yes
