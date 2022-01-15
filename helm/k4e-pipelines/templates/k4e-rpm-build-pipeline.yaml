@@ -29,6 +29,11 @@ spec:
       description: K4E Build Repository Branch Reference
       default: {{ $.Values.source.tools.branch }}
       type: string
+    - name: nexus-credentials-secret-name
+      description: Name of the secret that contains the Nexus credentials
+      default: {{ $.Values.nexus.secretName}}
+      type: string
+      
   workspaces:
     - name: shared-workspace
   tasks:
@@ -80,7 +85,9 @@ spec:
         kind: Task
       params:
         - name: source-dir
-          value: /workspace/workspace/         
+          value: /workspace/workspace/    
+        - name: nexus-secret-name
+          value: $(params.nexus-credentials-secret-name)
       runAfter:
         - "git-clone-yggdrasil-source"
         - "git-clone-worker-source"
