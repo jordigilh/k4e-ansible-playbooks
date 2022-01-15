@@ -28,5 +28,5 @@ source:
     repoURL: https://github.com/jordigilh/k4e-ansible-playbooks.git
 
 nexus:
-  secretName: nexus_credentials_secret_name
+  secretName: nexus-admin-credentials
 
