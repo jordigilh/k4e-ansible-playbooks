@@ -61,21 +61,3 @@
         validate_certs: no
         status_code:
           - 200
-
-    - name: Get Nexus Route
-      community.kubernetes.k8s_info:
-        api_key: "{{ lookup('file', '/var/run/secrets/kubernetes.io/serviceaccount/token') }}"
-        ca_cert: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        host: https://kubernetes.default.svc
-        kind: Route
-        api_version: route.openshift.io/v1
-        namespace: rfe
-        name: nexus
-        validate_certs: yes
-      register: nexus_route
-
-    - name: Save Nexus Destination to File
-      copy:
-        dest: "{{ artifact_repository_url_output_file }}"
-        content: "{{ ('https://' if nexus_route.resources[0].spec.tls is defined else 'http://') + nexus_route.resources[0].spec.host }}/{{ nexus_destination_path }}"
-  when: skip_nexus_upload is not defined or (not skip_nexus_upload|bool)
