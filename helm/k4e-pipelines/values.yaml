@@ -1,20 +1,31 @@
 targetNamespace: rfe
 
 buildConfig:
-  name: ansible-k4e-runner
+  name: k4e-builder
+  image:
+    name: quay.io/centos/centos
+    tag: stream8
+  output:
+    imageName: k4e-builder
+    tag: latest
 
+buildTask:
+  image:
+    name: quay.io/jordigilh/runner
+    tag: latest
 
 source:
   yggdrasil:
     branch: main
     repoURL: https://github.com/jakub-dzon/yggdrasil.git
-    dirname: yggdrasil
 
   worker:
     branch: main
     repoURL: https://github.com/jakub-dzon/k4e-device-worker.git
-    dirname: worker
 
   tools:
     branch: helm
     repoURL: https://github.com/jordigilh/k4e-ansible-playbooks.git
+
+
+

@@ -15,10 +15,10 @@ spec:
       description: Commit ID of the Build
   steps:
     - name: build-image-playbook
-      image: image-registry.openshift-image-registry.svc:5000/rfe/ansible-rfe-runner:latest
+      image: {{ .Values.buildTask.image.name }}:{{ .Values.buildTask.image.tag }}
       workingDir: /workspace/workspace
       args:
-        - |-
+        - |
           cd tools/ansible
           ansible-galaxy collection install -r collections/requirements.yaml
           ansible-playbook \

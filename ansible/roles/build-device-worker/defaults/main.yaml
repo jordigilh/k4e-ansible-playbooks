@@ -1,4 +1,4 @@
 ---
-base_repo_dir: /workspace/workspace/source/yggdrasil
+base_repo_dir: /workspace/workspace/
 rpm_build_directory: ~/rpmbuild
 build_arch: x86_64

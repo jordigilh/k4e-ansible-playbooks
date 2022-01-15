@@ -2,14 +2,22 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   namespace: {{ .Values.targetNamespace }} 
-  name: k4e-yggdrasil-rpm-build-pipeline
+  name: k4e-rpm-build-pipeline
 spec:
   params:
-    - name: source-git-url
+    - name: worker-git-url
+      description: Worker Source Repository URL
+      default: {{ $.Values.source.worker.repoURL }}
+      type: string
+    - name: worker-git-branch
+      description: Worker Source Repository Branch Reference
+      default: {{ $.Values.source.worker.branch }}
+      type: string
+    - name: yggdrasil-git-url
       description: Yggdrasil Source Repository URL
       default: {{ $.Values.source.yggdrasil.repoURL }}
       type: string
-    - name: source-git-branch
+    - name: yggdrasil-git-branch
       description: Yggdrasil Source Repository Branch Reference
       default: {{ $.Values.source.yggdrasil.branch }}
       type: string 
@@ -21,27 +29,37 @@ spec:
       description: K4E Build Repository Branch Reference
       default: {{ $.Values.source.tools.branch }}
       type: string
-    - name: source-dirname
-      description: Yggdrasil Source Code Name Reference
-      default: {{ $.Values.source.yggdrasil.dirname }}
-      type: string
   workspaces:
     - name: shared-workspace
   tasks:
-    - name: git-clone-source
+    - name: git-clone-yggdrasil-source
       taskRef:
         name: git-clone
         kind: ClusterTask
       params:
         - name: url
-          value: $(params.source-git-url)
+          value: $(params.yggdrasil-git-url)
         - name: revision
-          value: $(params.source-git-branch)
+          value: $(params.yggdrasil-git-branch)
         - name: subdirectory
-          value: $(params.source-dirname)
+          value: yggdrasil
       workspaces:
         - name: output
           workspace: shared-workspace
+    - name: git-clone-worker-source
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.worker-git-url)
+        - name: revision
+          value: $(params.worker-git-branch)
+        - name: subdirectory
+          value: worker
+      workspaces:
+        - name: output
+          workspace: shared-workspace          
     - name: git-clone-tools
       taskRef:
         name: git-clone
@@ -52,11 +70,11 @@ spec:
         - name: revision
           value: $(params.tools-git-branch)
         - name: subdirectory
-          value: "tools"
+          value: tools
       workspaces:
         - name: output
           workspace: shared-workspace             
-    - name: k4e-build-yggdrasil-task
+    - name: k4e-build--task
       taskRef:
         name: k4e-build-task
         kind: Task
@@ -64,7 +82,8 @@ spec:
         - name: source-dir
           value: /workspace/workspace/source         
       runAfter:
-        - "git-clone-source"
+        - "git-clone-yggdrasil-source"
+        - "git-clone-worker-source"
         - "git-clone-tools"
       workspaces:
         - name: workspace
