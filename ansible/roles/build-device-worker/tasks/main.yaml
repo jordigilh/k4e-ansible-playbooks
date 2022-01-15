@@ -1,26 +1,22 @@
 - name: Build binary for aarch64
   community.general.make:
     chdir: "{{ base_repo_dir }}/worker"
-    target: build
-  when: "build_arch == 'aarch64'"
+    target: build-arm64
 
 - name: Build RPM for aarch64
   community.general.make:
     chdir: "{{ base_repo_dir }}/worker"
-    target: rpm
-  when: "build_arch == 'aarch64'"
+    target: rpm-arm64
 
 - name: Build binary for x86_64
   community.general.make:
     chdir: "{{ base_repo_dir }}/worker"
     target: build
-  when: "build_arch == 'x86_64'"
-
+  
 - name: Build RPM for x86_64
   community.general.make:
     chdir: "{{ base_repo_dir }}/worker"
     target: rpm
-  when: "build_arch == 'x86_64'"
 
 - name: Capture RPM filename
   ansible.builtin.find:

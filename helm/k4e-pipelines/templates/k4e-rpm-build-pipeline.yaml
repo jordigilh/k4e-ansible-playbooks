@@ -74,13 +74,13 @@ spec:
       workspaces:
         - name: output
           workspace: shared-workspace             
-    - name: k4e-build--task
+    - name: k4e-rpm-build-task
       taskRef:
         name: k4e-build-task
         kind: Task
       params:
         - name: source-dir
-          value: /workspace/workspace/source         
+          value: /workspace/workspace/         
       runAfter:
         - "git-clone-yggdrasil-source"
         - "git-clone-worker-source"
