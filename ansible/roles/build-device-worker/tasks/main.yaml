@@ -18,7 +18,7 @@
     chdir: "{{ base_repo_dir }}/worker"
     target: rpm
 
-- name: Capture RPM filename
+- name: Assert RPMs created
   ansible.builtin.find:
     paths: "{{ rpm_build_directory }}/RPMS/"
     patterns: '^k4e-agent-.*\.rpm$'
