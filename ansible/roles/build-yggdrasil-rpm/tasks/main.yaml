@@ -1,29 +1,3 @@
-
-- name: Install Packages
-  ansible.builtin.dnf:
-    state: latest
-    name:
-      - dbus-devel
-      - systemd-devel
-      - git
-      - golang
-      - rpm-build
-
-- name: Delete build directory
-  ansible.builtin.file:
-    path: "{{ base_repo_dir }}"
-    state: absent
-
-- name: Clone Yggdrasil repository
-  ansible.builtin.git:
-    repo: "https://github.com/jakub-dzon/yggdrasil.git"
-    dest: "{{ base_repo_dir }}/yggdrasil"
-
-- name: Delete rpm build directory
-  ansible.builtin.file: 
-    path: "{{ rpm_build_directory }}/*"
-    state: absent
-
 - name: Build Yggdrasil
   community.general.make:
     chdir: "{{ base_repo_dir }}/yggdrasil"
@@ -59,3 +33,13 @@
 
 - name: Run RPMBuild for Yggdrasil
   ansible.builtin.command: rpmbuild -bb {{ rpm_build_directory }}/SPECS/yggdrasil.spec --target {{ build_arch }}
+  register: ret
+  failed_when: ret.rc !=0  
+
+- name: Assert RPM created
+  ansible.builtin.find:
+    paths: "{{ rpm_build_directory }}/RPMS/{{ build_arch }}"
+    patterns: '^yggdrasil-.*\.rpm$'
+    use_regex: yes
+  register: yggdrasil_rpm
+  failed_when: yggdrasil_rpm.matched != 1

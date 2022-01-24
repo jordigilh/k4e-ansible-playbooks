@@ -1,0 +1,29 @@
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: {{ .Values.buildConfig.name }}
+  namespace: {{ .Values.targetNamespace }}
+spec:
+  runPolicy: Serial
+  source:
+    type: Dockerfile
+    dockerfile: |
+      FROM {{ .Values.buildConfig.image.name}}:{{ .Values.buildConfig.image.tag }}
+      USER 0
+      RUN dnf install python3 platform-python-pip dbus-devel skopeo systemd-devel golang rpm-build git make -y && \
+          pip3 install --upgrade pip && \
+          pip3 install openshift jmespath netaddr ansible==2.9.* && \
+          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz | \
+            tar -xvzf - -C /usr/local/bin/ oc && chmod 755 /usr/local/bin/oc && ln -s /usr/local/bin/oc /usr/local/bin/kubectl
+  strategy:
+    type: Docker
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: {{ .Values.buildConfig.image.name}}:{{ .Values.buildConfig.image.tag }}
+  triggers:
+    - type: ConfigChange
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{ .Values.buildConfig.output.imageName }}:{{ .Values.buildConfig.output.tag }}

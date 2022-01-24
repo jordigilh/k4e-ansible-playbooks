@@ -1,0 +1,49 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  namespace: {{ .Values.targetNamespace }}  
+  name: flotta-build-task
+spec:
+  workspaces:
+    - name: workspace
+  params:
+    - name: base-repo-dir
+      description: Base directory contaning the source repositories
+      type: string
+  results:
+    - name: build-commit
+      description: Commit ID of the Build
+  steps:
+    - name: build-image-playbook
+      image: {{ .Values.buildTask.image.name }}:{{ .Values.buildTask.image.tag }}
+      workingDir: /workspace/workspace
+      args:
+        - |
+          ansible-galaxy collection install -r tools/ansible/collections/requirements.yaml
+          ansible-playbook -e base_repo_dir=$(params.base-repo-dir) tools/ansible/playbooks/build-rpm.yaml
+      command:
+        - /bin/bash
+        - -c
+      volumeMounts:
+        - name: publisher
+          mountPath: /var/secrets/publisher
+          readOnly: true
+        - name: quay-rfe-setup
+          mountPath: /var/secrets/quay-rfe-setup
+          readOnly: true
+        - name: nexus-admin-credentials
+          mountPath: /var/secrets/nexus-admin-credentials
+          readOnly: true
+  volumes:
+    - name: publisher
+      secret:
+        defaultMode: 0440
+        secretName: publisher
+    - name: quay-rfe-setup
+      secret:
+        defaultMode: 0440
+        secretName: quay-rfe-setup
+    - name: nexus-admin-credentials
+      secret:
+        defaultMode: 0440
+        secretName: nexus-admin-credentials

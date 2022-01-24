@@ -1,0 +1,47 @@
+---
+- name: Check if file to upload exists
+  stat:
+    path: "{{ file_to_upload }}"
+  register: file_exists
+  when: file_to_upload is defined
+
+- name: Assert file exists
+  assert:
+    fail_msg: "File is not defined or does not exist"
+    that:
+      - file_to_upload is defined
+      - file_exists.stat.exists
+
+- name: Upload file to Nexus
+  block:
+    - name: Set Nexus Credentials
+      ansible.builtin.set_fact:
+        nexus_password: "{{ lookup('file','/var/secrets/nexus-admin-credentials/password') }}"
+        nexus_username: "{{ lookup('file','/var/secrets/nexus-admin-credentials/username')}}"
+      no_log: true
+
+    - name: Verify Nexus Variables defined
+      assert:
+        fail_msg: "Nexus required variables are defined"
+        that:
+          - nexus_repository is defined
+          - nexus_username is defined
+          - nexus_password is defined
+
+    - name: Set destination path
+      set_fact:
+        nexus_destination_path: "repository/{{ nexus_repository }}/{{ nexus_repository_folder + '/' if nexus_repository_folder is defined }}{{ uploaded_filename_override | default(file_to_upload | basename) }}"
+
+    - name: Upload file to Nexus
+      uri:
+        url: "{{ nexus_http_scheme }}://{{ nexus_service_name }}:{{ nexus_service_port }}/{{ nexus_destination_path }}"
+        method: PUT
+        src: "{{ file_to_upload }}"
+        user: "{{ nexus_username }}"
+        password: "{{ nexus_password }}"
+        headers:
+          Content-Type: application/octet-stream
+        force_basic_auth: yes
+        validate_certs: no
+        status_code:
+          - 200
