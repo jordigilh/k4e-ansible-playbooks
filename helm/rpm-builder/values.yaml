@@ -21,7 +21,7 @@ source:
 
   worker:
     branch: main
-    repoURL: https://github.com/jakub-dzon/k4e-device-worker.git
+    repoURL: https://github.com/project-flotta/flotta-device-worker.git
 
   tools:
     branch: main

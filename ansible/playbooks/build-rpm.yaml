@@ -12,7 +12,7 @@
         paths: "{{ rpm_build_directory }}/RPMS/"
         patterns: 
           - '^yggdrasil-.*\.rpm$'
-          - '^k4e-agent-.*\.rpm$'
+          - '^flotta-agent-.*\.rpm$'
         use_regex: yes
         recurse: yes
       register: rpm_files
