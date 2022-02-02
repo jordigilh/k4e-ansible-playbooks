@@ -6,7 +6,7 @@
 - name: Assert RPMs created
   ansible.builtin.find:
     paths: "{{ rpm_build_directory }}/RPMS/"
-    patterns: '^k4e-agent-.*\.rpm$'
+    patterns: '^flotta-agent-.*\.rpm$'
     use_regex: yes
     recurse: yes
   register: agent_rpm
