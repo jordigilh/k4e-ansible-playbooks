@@ -25,4 +25,5 @@
       vars:
         file_to_upload: "{{ item.path }}"
         nexus_repository: "{{ nexus_rpm_repository }}"
+        nexus_repository_folder: "{{ 'aarch64' if item.path | basename | regex_search('.aarch64.rpm$') else 'x86_64' if item.path | basename | regex_search('.x86_64.rpm$')}}"
       loop: "{{ rpm_files.files }}"    
