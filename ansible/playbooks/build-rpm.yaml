@@ -6,6 +6,7 @@
   roles: 
      - role: build-yggdrasil-rpm
      - role: build-device-worker
+     - role: build-node-exporter
   tasks:
     - name: Capture RPM filename
       ansible.builtin.find:
@@ -13,10 +14,11 @@
         patterns: 
           - '^yggdrasil-.*\.rpm$'
           - '^flotta-agent-.*\.rpm$'
+          - '^node_exporter-.*\.rpm$'
         use_regex: yes
         recurse: yes
       register: rpm_files
-      failed_when: rpm_files.matched != 3
+      failed_when: rpm_files.matched != 4
       
     - name: Upload RPM artifacts to Nexus
       include_role:
