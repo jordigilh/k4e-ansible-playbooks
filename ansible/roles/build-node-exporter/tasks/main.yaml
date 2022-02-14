@@ -1,0 +1,13 @@
+- name: Build RPM
+  community.general.make:
+    chdir: "{{ base_repo_dir }}/exporter"
+    target: rpm
+
+- name: Assert RPMs created
+  ansible.builtin.find:
+    paths: "{{ rpm_build_directory }}/RPMS/"
+    patterns: '^node_exporter--.*\.rpm$'
+    use_regex: yes
+    recurse: yes
+  register: exporter_rpm
+  failed_when: exporter_rpm.matched != 1

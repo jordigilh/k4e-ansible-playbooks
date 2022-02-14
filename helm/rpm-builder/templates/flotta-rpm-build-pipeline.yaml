@@ -20,7 +20,15 @@ spec:
     - name: yggdrasil-git-branch
       description: Yggdrasil Source Repository Branch Reference
       default: {{ $.Values.source.yggdrasil.branch }}
-      type: string 
+      type: string
+    - name: exporter-git-url
+      description: Node Exporter Source Repository URL
+      default: {{ $.Values.source.exporter.repoURL }}
+      type: string
+    - name: exporter-git-branch
+      description: Exporter Source Repository Branch Reference
+      default: {{ $.Values.source.exporter.branch }}
+      type: string      
     - name: tools-git-url
       description: Flotta Build Repository URL
       default: {{ $.Values.source.tools.repoURL }}
@@ -59,7 +67,21 @@ spec:
           value: worker
       workspaces:
         - name: output
-          workspace: shared-workspace          
+          workspace: shared-workspace
+    - name: git-clone-exporter-source
+      taskRef:
+        name: git-clone
+        kind: ClusterTask
+      params:
+        - name: url
+          value: $(params.exporter-git-url)
+        - name: revision
+          value: $(params.exporter-git-branch)
+        - name: subdirectory
+          value: exporter
+      workspaces:
+        - name: output
+          workspace: shared-workspace                   
     - name: git-clone-tools
       taskRef:
         name: git-clone
@@ -84,6 +106,7 @@ spec:
       runAfter:
         - "git-clone-yggdrasil-source"
         - "git-clone-worker-source"
+        - "git-clone-exporter-source"
         - "git-clone-tools"
       workspaces:
         - name: workspace

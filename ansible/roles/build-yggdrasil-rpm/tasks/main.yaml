@@ -1,4 +1,4 @@
-- name: Build Yggdrasil
+- name: Build Binary
   community.general.make:
     chdir: "{{ base_repo_dir }}/yggdrasil"
     target: srpm

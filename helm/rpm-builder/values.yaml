@@ -23,6 +23,10 @@ source:
     branch: main
     repoURL: https://github.com/project-flotta/flotta-device-worker.git
 
+  exporter:
+    branch: main
+    repoURL: https://github.com/project-flotta/prometheus-node_exporter-rpm.git     
+
   tools:
     branch: main
     repoURL: https://github.com/project-flotta/rfe-ansible-playbooks.git
